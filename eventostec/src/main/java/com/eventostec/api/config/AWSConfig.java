@@ -1,10 +1,12 @@
 package com.eventostec.api.config;
 
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;
+import software.amazon.awssdk.http.urlconnection.UrlConnectionHttpClient;
+import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.s3.S3Client;
 
 @Configuration
 public class AWSConfig {
@@ -13,10 +15,11 @@ public class AWSConfig {
     private String awsRegion;
 
     @Bean
-    public AmazonS3 createS3Instance() {
-        return AmazonS3ClientBuilder
-                .standard()
-                .withRegion(awsRegion)
+    public S3Client s3Client() {
+        return S3Client.builder()
+                .region(Region.of(awsRegion))
+                .credentialsProvider(DefaultCredentialsProvider.create())
+                .httpClient(UrlConnectionHttpClient.create())
                 .build();
     }
 }
