@@ -1,4 +1,4 @@
-package com.eventostec.api.domain.repositories;
+package com.eventostec.api.repositories;
 
 import com.eventostec.api.domain.address.Address;
 import com.eventostec.api.domain.event.Event;
