@@ -1,8 +1,11 @@
 package com.eventostec.api.service;
 
+import com.eventostec.api.domain.coupon.Coupon;
 import com.eventostec.api.domain.event.Event;
+import com.eventostec.api.domain.event.EventDetailsDTO;
 import com.eventostec.api.domain.event.EventRequestDTO;
 import com.eventostec.api.domain.event.EventResponseDTO;
+import com.eventostec.api.repositories.CouponRepository;
 import com.eventostec.api.repositories.EventRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -36,6 +39,12 @@ public class EventService {
     @Autowired
     private EventRepository repository;
 
+    @Autowired
+    private AddressService addressService;
+
+    @Autowired
+    private CouponRepository couponRepository;
+
     public Event createEvent(EventRequestDTO data){
         String imgUrl = null;
 
@@ -54,6 +63,10 @@ public class EventService {
 
         repository.save(newEvent);
 
+        if(!data.remote()) {
+            this.addressService.createAddress(data, newEvent);
+        }
+
         return newEvent;
     }
 
@@ -65,12 +78,66 @@ public class EventService {
                 event.getTitle(),
                 event.getDescription(),
                 event.getDate(),
-                "",
-                "",
+                event.getAddress() != null ? event.getAddress().getCity() : "",
+                event.getAddress() != null ? event.getAddress().getUf() : "",
                 event.isRemote(),
                 event.getEventUrl(),
                 event.getImgUrl()
         )).stream().toList();
+    }
+
+    public List<EventResponseDTO> getFilteredEvents(int page, int size, String title, String city, String uf, Boolean remote, Date startDate, Date endDate) {
+
+        title     = (title != null)     ? title : "";
+        city      = (city != null)      ? city : "";
+        uf        = (uf != null)        ? uf : "";
+        startDate = (startDate != null) ? startDate : new Date(0);
+        endDate   = (endDate != null)   ? endDate : new Date(253402214400000L); // ~ano 9999: sem limite superior
+        // remote fica nullable de propósito: null = "Todos" (não filtra por presencial/remoto)
+
+        Pageable pageable = PageRequest.of(page,size);
+
+        Page<Event> eventsPage = this.repository.findFilteredEvents(new Date(), title, city, uf, remote, startDate, endDate, pageable);
+        return eventsPage.map(event -> new EventResponseDTO(
+                event.getId(),
+                event.getTitle(),
+                event.getDescription(),
+                event.getDate(),
+                event.getAddress() != null ? event.getAddress().getCity() : "",
+                event.getAddress() != null ? event.getAddress().getUf() : "",
+                event.isRemote(),
+                event.getEventUrl(),
+                event.getImgUrl()
+        )).stream().toList();
+    }
+
+    public EventDetailsDTO getEventById(UUID id) {
+        Event event = this.repository.findById(id).orElseThrow();
+
+        // 1. busca os cupons desse evento (query derivada pelo nome do método)
+        List<Coupon> coupons = this.couponRepository.findByEventId(id);
+
+        // 2. converte cada Coupon (entidade) em CouponDTO (só os campos que queremos expor)
+        List<EventDetailsDTO.CouponDTO> couponDTOs = coupons.stream()
+                .map(coupon -> new EventDetailsDTO.CouponDTO(
+                        coupon.getCode(),
+                        coupon.getDiscount(),
+                        coupon.getValid()))
+                .toList();
+
+        // 3. monta o detalhe do evento já com a lista de cupons dentro
+        return new EventDetailsDTO(
+                event.getId(),
+                event.getTitle(),
+                event.getDescription(),
+                event.getDate(),
+                event.getAddress() != null ? event.getAddress().getCity() : "",
+                event.getAddress() != null ? event.getAddress().getUf() : "",
+                event.isRemote(),
+                event.getEventUrl(),
+                event.getImgUrl(),
+                couponDTOs
+        );
     }
 
     private String uploadImg(MultipartFile multiparteFile){
@@ -97,4 +164,5 @@ public class EventService {
         fos.close();
         return convFile;
     }
+
 }

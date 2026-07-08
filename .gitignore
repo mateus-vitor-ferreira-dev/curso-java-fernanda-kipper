@@ -1,0 +1,15 @@
+# Build (Maven)
+target/
+
+# IDEs
+.idea/
+*.iml
+*.iws
+*.ipr
+.vscode/
+
+# OS
+.DS_Store
+
+# Config de produção preenchida localmente (segredos)
+application-prod-local.properties
