@@ -13,7 +13,25 @@ import java.util.UUID;
 
 public interface EventRepository extends JpaRepository<Event, UUID> {
 
-    @Query("SELECT e FROM Event e WHERE e.date >= :currentDate")
-    public Page<Event> findUpcomingEvents(@Param("currentDate") Date currentDate, Pageable pageable);
+        @Query("SELECT e FROM Event e LEFT JOIN FETCH e.address a WHERE e.date >= :currentDate")
+        public Page<Event> findUpcomingEvents(@Param("currentDate") Date currentDate, Pageable pageable);
+
+        @Query("SELECT e FROM Event e " +
+            "LEFT JOIN e.address a " +
+            "WHERE e.date >= :currentDate " +
+            "AND e.title LIKE %:title% " +
+            "AND (a.city LIKE %:city% OR :city = '') " +
+            "AND (a.uf LIKE %:uf% OR :uf = '') " +
+            "AND e.remote = COALESCE(:remote, e.remote) " +
+            "AND e.date >= :startDate " +
+            "AND e.date <= :endDate")
+        Page<Event> findFilteredEvents(@Param("currentDate") Date date,
+                                       @Param("title") String title,
+                                       @Param("city") String city,
+                                       @Param("uf") String uf,
+                                       @Param("remote") Boolean remote,
+                                       @Param("startDate") Date startDate,
+                                       @Param("endDate") Date endDate,
+                                       Pageable pageable);
 }
 
