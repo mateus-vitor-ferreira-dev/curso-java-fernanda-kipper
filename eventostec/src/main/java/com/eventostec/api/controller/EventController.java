@@ -16,6 +16,14 @@ import com.eventostec.api.domain.event.EventRequestDTO;
 import com.eventostec.api.domain.event.EventResponseDTO;
 import com.eventostec.api.service.EventService;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
+/**
+ * Endpoints REST de eventos: criação, listagem paginada de eventos futuros,
+ * filtro e detalhe (com cupons).
+ */
+@Tag(name = "Eventos", description = "Criação, listagem, filtro e detalhe de eventos")
 @RestController
 @RequestMapping("/api/event")
 public class EventController {
@@ -23,8 +31,15 @@ public class EventController {
     @Autowired
     private EventService eventService;
 
+    /**
+     * Cria um novo evento. Recebe {@code multipart/form-data} para suportar o
+     * upload opcional de imagem (enviada ao S3). Eventos presenciais também
+     * ganham um endereço a partir de {@code city}/{@code state}.
+     *
+     * @return o evento criado
+     */
+    @Operation(summary = "Cria um evento", description = "Recebe multipart/form-data; a imagem é opcional e enviada ao S3.")
     @PostMapping(consumes = "multipart/form-data")
-    // Lógica para criar um evento
     public ResponseEntity<Event> create(@RequestParam("title") String title,
             @RequestParam(value = "description", required = false) String description,
             @RequestParam("date") Long date,
@@ -40,6 +55,14 @@ public class EventController {
 
     }
 
+    /**
+     * Lista, de forma paginada, os eventos com data igual ou posterior a agora.
+     *
+     * @param page índice da página (começa em 0)
+     * @param size quantidade de itens por página (obrigatório)
+     * @return a página de eventos futuros
+     */
+    @Operation(summary = "Lista eventos futuros (paginado)")
     @GetMapping
     public ResponseEntity<List<EventResponseDTO>> getEvents(@RequestParam(defaultValue = "0") int page,
             @RequestParam int size) {
@@ -47,6 +70,14 @@ public class EventController {
         return ResponseEntity.ok(allEvents);
     }
 
+    /**
+     * Filtra eventos futuros por título, cidade, UF, presencial/remoto e
+     * intervalo de datas. Todos os filtros são opcionais.
+     *
+     * @param remote {@code true} só remotos, {@code false} só presenciais, ausente para ambos
+     * @return os eventos que atendem aos filtros
+     */
+    @Operation(summary = "Filtra eventos futuros", description = "Todos os parâmetros de filtro são opcionais.")
     @GetMapping("/filter")
     public ResponseEntity<List<EventResponseDTO>> filterEvents(@RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
@@ -61,6 +92,13 @@ public class EventController {
         return ResponseEntity.ok(events);
     }
 
+    /**
+     * Retorna os detalhes de um evento pelo seu id, incluindo os cupons cadastrados.
+     *
+     * @param id identificador (UUID) do evento
+     * @return os detalhes do evento com a lista de cupons
+     */
+    @Operation(summary = "Detalha um evento por id", description = "Inclui a lista de cupons do evento.")
     @GetMapping("/{id}")
     public ResponseEntity<EventDetailsDTO> getEventById(@PathVariable UUID id) {
         EventDetailsDTO event = eventService.getEventById(id);
