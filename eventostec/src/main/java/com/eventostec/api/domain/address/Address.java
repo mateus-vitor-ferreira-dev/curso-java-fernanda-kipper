@@ -9,6 +9,9 @@ import lombok.Setter;
 
 import java.util.UUID;
 
+/**
+ * Endereço (cidade/UF) de um evento presencial. Relaciona-se 1-para-1 com {@link Event}.
+ */
 @Entity
 @Table(name = "address")
 @Getter

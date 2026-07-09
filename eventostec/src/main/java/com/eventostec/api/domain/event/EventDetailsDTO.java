@@ -4,6 +4,10 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * Detalhe de um evento retornado por {@code GET /api/event/{id}}, incluindo a
+ * lista de cupons ({@link CouponDTO}).
+ */
 public record EventDetailsDTO(UUID id,
                               String title,
                               String description,

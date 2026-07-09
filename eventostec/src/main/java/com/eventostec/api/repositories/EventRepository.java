@@ -10,12 +10,29 @@ import org.springframework.data.repository.query.Param;
 import java.util.Date;
 import java.util.UUID;
 
+/**
+ * Repositório JPA de {@link Event}, com consultas de eventos futuros e filtro.
+ */
 public interface EventRepository extends JpaRepository<Event, UUID> {
 
-        @Query("SELECT e FROM Event e LEFT JOIN FETCH e.address a WHERE e.date >= :currentDate")
+        /**
+     * Eventos com data maior ou igual à informada (eventos futuros), já
+     * carregando o endereço (fetch join).
+     *
+     * @param currentDate data de corte (normalmente agora)
+     * @param pageable    paginação
+     * @return a página de eventos futuros
+     */
+    @Query("SELECT e FROM Event e LEFT JOIN FETCH e.address a WHERE e.date >= :currentDate")
         public Page<Event> findUpcomingEvents(@Param("currentDate") Date currentDate, Pageable pageable);
 
-        @Query("SELECT e FROM Event e " +
+        /**
+     * Eventos futuros aplicando filtros opcionais. Parâmetros vazios/nulos são
+     * neutralizados na própria query (LIKE '%%' e COALESCE para o boolean remote).
+     *
+     * @return a página de eventos filtrados
+     */
+    @Query("SELECT e FROM Event e " +
             "LEFT JOIN e.address a " +
             "WHERE e.date >= :currentDate " +
             "AND e.title LIKE %:title% " +

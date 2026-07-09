@@ -10,6 +10,10 @@ import lombok.Setter;
 import java.util.Date;
 import java.util.UUID;
 
+/**
+ * Evento de tecnologia (presencial ou remoto). Eventos presenciais possuem um
+ * {@link Address}; todos podem ter cupons de desconto associados.
+ */
 @Table(name = "event")
 @Entity
 @Setter
