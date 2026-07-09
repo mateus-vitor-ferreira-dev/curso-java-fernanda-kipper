@@ -10,6 +10,10 @@ import lombok.Setter;
 import java.util.Date;
 import java.util.UUID;
 
+/**
+ * Cupom de desconto vinculado a um {@link Event}: código, percentual de
+ * desconto e data de validade.
+ */
 @Entity
 @Table(name = "coupon")
 @Getter

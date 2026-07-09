@@ -11,6 +11,9 @@ import org.springframework.stereotype.Service;
 import java.util.Date;
 import java.util.UUID;
 
+/**
+ * Regras de negócio de cupons de desconto.
+ */
 @Service
 public class CouponService {
 
@@ -20,6 +23,14 @@ public class CouponService {
     @Autowired
     private EventRepository eventRepository;
 
+    /**
+     * Cadastra um cupom em um evento existente.
+     *
+     * @param eventId    id do evento
+     * @param couponData dados do cupom
+     * @return o cupom criado
+     * @throws IllegalArgumentException se o evento não existir
+     */
     public Coupon addCouponToEvent(UUID eventId, CouponRequestDTO couponData) {
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new IllegalArgumentException("Event not found"));
