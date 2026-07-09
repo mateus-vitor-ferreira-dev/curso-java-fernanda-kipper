@@ -8,6 +8,7 @@ API REST para gerenciamento de eventos de tecnologia (presenciais e remotos), co
 
 A API está publicada na AWS (EC2 + RDS PostgreSQL), com IP fixo (Elastic IP):
 
+- **📖 Documentação (Swagger UI):** http://18.222.42.33:8080/swagger-ui/index.html
 - **Listagem de eventos:** http://18.222.42.33:8080/api/event?page=0&size=12
 - **Filtro (só remotos):** http://18.222.42.33:8080/api/event/filter?remote=true&size=100
 - **Detalhes de um evento:** `http://18.222.42.33:8080/api/event/{id}`
@@ -18,6 +19,7 @@ A API está publicada na AWS (EC2 + RDS PostgreSQL), com IP fixo (Elastic IP):
 - **Spring Data JPA** / Hibernate
 - **PostgreSQL 15** (Docker no dev, Amazon RDS em produção)
 - **Flyway** (dono do schema; `ddl-auto=validate`)
+- **Swagger / OpenAPI** (springdoc) — documentação interativa
 - **AWS**: S3 (imagens), RDS (banco), EC2 (deploy)
 
 ## 📁 Estrutura
