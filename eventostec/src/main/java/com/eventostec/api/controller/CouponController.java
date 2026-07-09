@@ -5,7 +5,6 @@ import java.util.UUID;
 import com.eventostec.api.domain.coupon.Coupon;
 import com.eventostec.api.domain.coupon.CouponRequestDTO;
 import com.eventostec.api.service.CouponService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,8 +19,11 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 @RequestMapping("/api/coupon")
 public class CouponController {
 
-    @Autowired
-    private CouponService couponService;
+    private final CouponService couponService;
+
+    public CouponController(CouponService couponService) {
+        this.couponService = couponService;
+    }
 
     /**
      * Cadastra um cupom de desconto para um evento existente.

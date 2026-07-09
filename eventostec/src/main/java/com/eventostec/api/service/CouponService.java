@@ -5,7 +5,6 @@ import com.eventostec.api.domain.coupon.CouponRequestDTO;
 import com.eventostec.api.domain.event.Event;
 import com.eventostec.api.repositories.CouponRepository;
 import com.eventostec.api.repositories.EventRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -17,11 +16,13 @@ import java.util.UUID;
 @Service
 public class CouponService {
 
-    @Autowired
-    private CouponRepository couponRepository;
+    private final CouponRepository couponRepository;
+    private final EventRepository eventRepository;
 
-    @Autowired
-    private EventRepository eventRepository;
+    public CouponService(CouponRepository couponRepository, EventRepository eventRepository) {
+        this.couponRepository = couponRepository;
+        this.eventRepository = eventRepository;
+    }
 
     /**
      * Cadastra um cupom em um evento existente.

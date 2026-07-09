@@ -7,7 +7,6 @@ import com.eventostec.api.domain.event.EventRequestDTO;
 import com.eventostec.api.domain.event.EventResponseDTO;
 import com.eventostec.api.repositories.CouponRepository;
 import com.eventostec.api.repositories.EventRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -34,20 +33,23 @@ import java.util.UUID;
 @Service
 public class EventService {
 
-    @Value("${aws.bucket.name}")
-    private String bucketName;
+    private final String bucketName;
+    private final S3Client s3Client;
+    private final EventRepository repository;
+    private final AddressService addressService;
+    private final CouponRepository couponRepository;
 
-    @Autowired
-    private S3Client s3Client;
-
-    @Autowired
-    private EventRepository repository;
-
-    @Autowired
-    private AddressService addressService;
-
-    @Autowired
-    private CouponRepository couponRepository;
+    public EventService(@Value("${aws.bucket.name}") String bucketName,
+                        S3Client s3Client,
+                        EventRepository repository,
+                        AddressService addressService,
+                        CouponRepository couponRepository) {
+        this.bucketName = bucketName;
+        this.s3Client = s3Client;
+        this.repository = repository;
+        this.addressService = addressService;
+        this.couponRepository = couponRepository;
+    }
 
     /**
      * Cria e persiste um evento. Se houver imagem, faz upload no S3; se não for
