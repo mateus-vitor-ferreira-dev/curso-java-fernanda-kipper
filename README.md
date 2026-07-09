@@ -4,6 +4,14 @@ API REST para gerenciamento de eventos de tecnologia (presenciais e remotos), co
 
 > ℹ️ O código-fonte do projeto fica na subpasta [`eventostec/`](eventostec/). Os comandos Maven devem ser executados a partir dela.
 
+## 🔗 Aplicação no ar
+
+A API está publicada na AWS (EC2 + RDS PostgreSQL), com IP fixo (Elastic IP):
+
+- **Listagem de eventos:** http://18.222.42.33:8080/api/event?page=0&size=12
+- **Filtro (só remotos):** http://18.222.42.33:8080/api/event/filter?remote=true&size=100
+- **Detalhes de um evento:** `http://18.222.42.33:8080/api/event/{id}`
+
 ## 🛠️ Stack
 
 - **Java 21** + **Spring Boot 3.3**
@@ -73,7 +81,14 @@ Para trocar de profile: `SPRING_PROFILES_ACTIVE=prod` (variável de ambiente) ou
 
 ## ☁️ Deploy (AWS EC2 + RDS)
 
-O app roda numa **EC2** e conecta num **RDS PostgreSQL** (privado, na mesma VPC). Em produção, ative o profile `prod` e forneça as credenciais do banco por variáveis de ambiente — a senha **nunca** vai para o código versionado.
+Arquitetura em produção:
+
+- **EC2** (Amazon Linux 2023) rodando o `.jar` como serviço **systemd** (`eventostec`) — com auto-start no boot e reinício automático em caso de falha.
+- **Elastic IP** fixo (`18.222.42.33`) — o endereço público não muda ao parar/ligar a instância.
+- **RDS PostgreSQL** privado, na mesma VPC da EC2 (acessível apenas pela rede interna).
+- Credenciais do banco em `/etc/eventostec.env` na EC2 (fora do jar e do Git); a senha **nunca** é versionada.
+
+### Publicar uma nova versão (redeploy)
 
 ```bash
 # 1. Gerar o .jar (pulando os testes, que exigem o banco)
@@ -81,17 +96,15 @@ cd eventostec
 mvn clean package -DskipTests
 
 # 2. Copiar para a EC2
-scp -i ~/.ssh/eventostec-key.pem target/*.jar ec2-user@<IP_PUBLICO>:~/
+scp -i ~/.ssh/eventostec-key.pem target/api-0.0.1-SNAPSHOT.jar ec2-user@18.222.42.33:~/app.jar
 
-# 3. Na EC2 (via SSH), definir o profile + credenciais e rodar
-export SPRING_PROFILES_ACTIVE=prod
-export DB_URL="jdbc:postgresql://<endpoint-rds>:5432/postgres"
-export DB_USERNAME="postgres"
-export DB_PASSWORD="<senha-do-rds>"
-java -jar app.jar
+# 3. Reiniciar o serviço
+ssh -i ~/.ssh/eventostec-key.pem ec2-user@18.222.42.33 "sudo systemctl restart eventostec"
 ```
 
-Existem outras formas de passar a configuração de produção (argumentos de linha de comando, `-D`, arquivo externo ao lado do jar) — todas documentadas em [`application-prod.properties`](eventostec/src/main/resources/application-prod.properties).
+Comandos úteis na EC2: `sudo systemctl status eventostec` · `sudo journalctl -u eventostec -f`.
+
+Existem várias formas de fornecer a configuração de produção (variáveis de ambiente, argumentos de linha de comando, `-D`, arquivo externo ao lado do jar) — todas documentadas em [`application-prod.properties`](eventostec/src/main/resources/application-prod.properties).
 
 ## 🌿 Fluxo de branches
 
