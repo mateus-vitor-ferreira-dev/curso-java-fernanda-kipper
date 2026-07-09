@@ -4,7 +4,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -28,8 +27,11 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 @RequestMapping("/api/event")
 public class EventController {
 
-    @Autowired
-    private EventService eventService;
+    private final EventService eventService;
+
+    public EventController(EventService eventService) {
+        this.eventService = eventService;
+    }
 
     /**
      * Cria um novo evento. Recebe {@code multipart/form-data} para suportar o
