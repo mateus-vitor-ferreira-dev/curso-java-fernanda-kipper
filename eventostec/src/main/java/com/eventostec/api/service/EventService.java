@@ -27,6 +27,10 @@ import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
+/**
+ * Regras de negócio de eventos: criação (com upload de imagem no S3 e endereço),
+ * listagem paginada de eventos futuros, filtro e montagem do detalhe com cupons.
+ */
 @Service
 public class EventService {
 
@@ -45,6 +49,13 @@ public class EventService {
     @Autowired
     private CouponRepository couponRepository;
 
+    /**
+     * Cria e persiste um evento. Se houver imagem, faz upload no S3; se não for
+     * remoto, também cria o endereço a partir de cidade/estado.
+     *
+     * @param data dados do evento
+     * @return o evento criado
+     */
     public Event createEvent(EventRequestDTO data){
         String imgUrl = null;
 
@@ -70,6 +81,13 @@ public class EventService {
         return newEvent;
     }
 
+    /**
+     * Lista, paginado, os eventos com data maior ou igual a agora.
+     *
+     * @param page índice da página (base 0)
+     * @param size itens por página
+     * @return os eventos futuros da página
+     */
     public List<EventResponseDTO> getUpcomingEvents(int page, int size) {
         Pageable pageable = PageRequest.of(page,size);
         Page<Event> eventsPage = this.repository.findUpcomingEvents(new Date(), pageable);
@@ -86,6 +104,12 @@ public class EventService {
         )).stream().toList();
     }
 
+    /**
+     * Lista eventos futuros aplicando filtros opcionais (título, cidade, UF,
+     * presencial/remoto e intervalo de datas). Filtros nulos são neutralizados.
+     *
+     * @return os eventos que atendem aos filtros
+     */
     public List<EventResponseDTO> getFilteredEvents(int page, int size, String title, String city, String uf, Boolean remote, Date startDate, Date endDate) {
 
         title     = (title != null)     ? title : "";
@@ -111,6 +135,12 @@ public class EventService {
         )).stream().toList();
     }
 
+    /**
+     * Busca um evento pelo id e monta seu detalhe, incluindo os cupons.
+     *
+     * @param id identificador do evento
+     * @return o detalhe do evento com a lista de cupons
+     */
     public EventDetailsDTO getEventById(UUID id) {
         Event event = this.repository.findById(id).orElseThrow();
 

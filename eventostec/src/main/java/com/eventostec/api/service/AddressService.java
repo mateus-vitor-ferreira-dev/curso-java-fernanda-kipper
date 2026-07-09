@@ -7,12 +7,22 @@ import com.eventostec.api.repositories.AddressRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+/**
+ * Regras de negócio de endereços de eventos presenciais.
+ */
 @Service
 public class AddressService {
 
     @Autowired
     private AddressRepository addressRepository;
 
+    /**
+     * Cria e persiste o endereço de um evento a partir de cidade/estado.
+     *
+     * @param data  dados do evento (contém cidade e estado)
+     * @param event evento ao qual o endereço pertence
+     * @return o endereço persistido
+     */
     public Address createAddress(EventRequestDTO data, Event event) {
         Address address = new Address();
         address.setCity(data.city());
