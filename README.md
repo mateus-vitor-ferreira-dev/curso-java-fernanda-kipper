@@ -1,6 +1,17 @@
+# Curso Java + Spring Boot — Fernanda Kipper
+
+Projetos desenvolvidos acompanhando o curso de Java + Spring Boot da Fernanda Kipper.
+
+| Projeto | Pasta | Descrição |
+|---------|-------|-----------|
+| 1 — EventosTec | [`eventostec/`](eventostec/) | API de eventos de tecnologia (S3, RDS, deploy na AWS) — documentada abaixo |
+| 2 — Login Auth | [`login-auth-api/`](login-auth-api/) | API de autenticação com JWT e Spring Security — ver [README próprio](login-auth-api/README.md) |
+
+---
+
 # EventosTec API
 
-API REST para gerenciamento de eventos de tecnologia (presenciais e remotos), com cupons de desconto, upload de imagens no S3 e listagem paginada/filtrada. Projeto desenvolvido acompanhando o curso de Java + Spring Boot da Fernanda Kipper.
+API REST para gerenciamento de eventos de tecnologia (presenciais e remotos), com cupons de desconto, upload de imagens no S3 e listagem paginada/filtrada.
 
 > ℹ️ O código-fonte do projeto fica na subpasta [`eventostec/`](eventostec/). Os comandos Maven devem ser executados a partir dela.
 
